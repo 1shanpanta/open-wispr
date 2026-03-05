@@ -128,7 +128,7 @@ class StatusBarController: NSObject {
             let config = Config.defaultConfig
             try? config.save()
         }
-        NSWorkspace.shared.selectFile(configFile.path, inFileViewerRootedAtPath: Config.configDir.path)
+        NSWorkspace.shared.open(configFile)
     }
 
     private func updateIcon() {

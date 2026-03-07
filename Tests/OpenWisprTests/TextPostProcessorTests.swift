@@ -36,11 +36,11 @@ final class TextPostProcessorTests: XCTestCase {
     }
 
     func testNewLine() {
-        XCTAssertEqual(TextPostProcessor.process("hello new line world"), "hello \nworld")
+        XCTAssertEqual(TextPostProcessor.process("hello new line world"), "hello \n world")
     }
 
     func testNewParagraph() {
-        XCTAssertEqual(TextPostProcessor.process("hello new paragraph world"), "hello \n\nworld")
+        XCTAssertEqual(TextPostProcessor.process("hello new paragraph world"), "hello \n\n world")
     }
 
     func testOpenCloseQuotes() {

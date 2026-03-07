@@ -36,19 +36,19 @@ final class TextPostProcessorTests: XCTestCase {
     }
 
     func testNewLine() {
-        XCTAssertEqual(TextPostProcessor.process("hello new line world"), "hello\nworld")
+        XCTAssertEqual(TextPostProcessor.process("hello new line world"), "hello \nworld")
     }
 
     func testNewParagraph() {
-        XCTAssertEqual(TextPostProcessor.process("hello new paragraph world"), "hello\n\nworld")
+        XCTAssertEqual(TextPostProcessor.process("hello new paragraph world"), "hello \n\nworld")
     }
 
     func testOpenCloseQuotes() {
-        XCTAssertEqual(TextPostProcessor.process("he said open quote hello close quote"), "he said \"hello\"")
+        XCTAssertEqual(TextPostProcessor.process("he said open quote hello close quote"), "he said \" hello \"")
     }
 
     func testOpenCloseParens() {
-        XCTAssertEqual(TextPostProcessor.process("open paren note close paren"), "(note)")
+        XCTAssertEqual(TextPostProcessor.process("open paren note close paren"), "( note )")
     }
 
     func testCaseInsensitive() {

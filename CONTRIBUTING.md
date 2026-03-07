@@ -21,13 +21,19 @@ The dev script handles everything you need to build and run from source:
 ## Project structure
 
 ```
-Sources/OpenWispr/
+Sources/OpenWisprLib/
 ├── AppDelegate.swift    # App lifecycle, hotkey listener, menu bar
 ├── Config.swift         # Config loading/saving (~/.config/open-wispr/config.json)
 ├── Transcriber.swift    # Whisper CLI wrapper
 ├── AudioRecorder.swift  # Microphone recording
 ├── RecordingStore.swift # Recording history and pruning
 └── ...
+Sources/OpenWispr/
+└── main.swift           # CLI entry point
+Tests/OpenWisprTests/
+├── ConfigTests.swift
+├── RecordingStoreTests.swift
+└── TextPostProcessorTests.swift
 scripts/
 ├── dev.sh               # Build & run from source
 ├── install.sh           # Guided installer

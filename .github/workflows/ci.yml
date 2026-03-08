@@ -6,12 +6,6 @@ on:
 
 jobs:
   build:
-    if: >-
-      github.event.pull_request
-      && (
-        contains(join(github.event.pull_request.labels.*.name, ','), '') ||
-        true
-      )
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -32,13 +26,7 @@ jobs:
         if: steps.filter.outputs.swift == 'true'
         run: swift build -c release
 
-  test:
-    if: >-
-      github.event.pull_request
-      && (
-        contains(join(github.event.pull_request.labels.*.name, ','), '') ||
-        true
-      )
+  unit-tests:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -55,6 +43,31 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Test
+      - name: Unit tests
         if: steps.filter.outputs.swift == 'true'
         run: swift test
+
+  install-test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: brew install shellcheck
+
+      - name: Install smoke test
+        run: bash scripts/test-install.sh
+
+  transcription-test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install whisper-cpp
+        run: brew install whisper-cpp
+
+      - name: Build
+        run: swift build -c release
+
+      - name: Transcription integration test
+        run: bash scripts/test-transcription.sh

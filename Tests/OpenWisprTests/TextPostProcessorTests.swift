@@ -70,4 +70,28 @@ final class TextPostProcessorTests: XCTestCase {
     func testEmptyString() {
         XCTAssertEqual(TextPostProcessor.process(""), "")
     }
+
+    func testFullStop() {
+        XCTAssertEqual(TextPostProcessor.process("done full stop"), "done.")
+    }
+
+    func testDash() {
+        XCTAssertEqual(TextPostProcessor.process("one dash two"), "one — two")
+    }
+
+    func testHyphen() {
+        XCTAssertEqual(TextPostProcessor.process("well hyphen known"), "well-known")
+    }
+
+    func testSemiColonTwoWords() {
+        XCTAssertEqual(TextPostProcessor.process("first semi colon second"), "first; second")
+    }
+
+    func testNewlineSingleWord() {
+        XCTAssertEqual(TextPostProcessor.process("hello newline world"), "hello \n world")
+    }
+
+    func testEnsureSpaceAfterPunctuation() {
+        XCTAssertEqual(TextPostProcessor.process("hello,world"), "hello, world")
+    }
 }

@@ -49,29 +49,21 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
 
-        Permissions.ensureMicrophone()
-
         if !AXIsProcessTrusted() {
             DispatchQueue.main.async {
                 self.statusBar.state = .waitingForPermission
                 self.statusBar.buildMenu()
             }
+        }
+
+        Permissions.ensureMicrophone()
+
+        if !AXIsProcessTrusted() {
             print("Accessibility: not granted")
             Permissions.promptAccessibility()
-            Permissions.openAccessibilitySettings()
             print("Waiting for Accessibility permission...")
-            var elapsed = 0
             while !AXIsProcessTrusted() {
-                Thread.sleep(forTimeInterval: 2)
-                elapsed += 2
-                if elapsed == 10 {
-                    print("Accessibility: still not granted.")
-                    print("If OpenWispr is already in the list, remove it (minus button) and re-add it (plus button).")
-                    DispatchQueue.main.async {
-                        self.statusBar.accessibilityHint = "Remove OpenWispr (- button) and re-add it (+ button)"
-                        self.statusBar.buildMenu()
-                    }
-                }
+                Thread.sleep(forTimeInterval: 0.5)
             }
             print("Accessibility: granted")
         } else {

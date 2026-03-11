@@ -15,16 +15,16 @@ rm -rf ~/Applications/OpenWispr.app
 cp -R OpenWispr.app ~/Applications/OpenWispr.app
 rm -rf OpenWispr.app
 
-echo ""
-echo "==> Manual step required:"
-echo "   1. Open System Settings > Privacy & Security > Accessibility"
-echo "   2. Select OpenWispr and click the MINUS button to remove it"
-echo "   3. Press Enter here to continue"
-echo ""
-read -r -p "Press Enter after removing OpenWispr from Accessibility..."
+echo "==> Registering app bundle..."
+/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister -f ~/Applications/OpenWispr.app
+
+echo "==> Resetting permissions (simulates install.sh upgrade)..."
+tccutil reset Accessibility com.human37.open-wispr 2>/dev/null || true
+tccutil reset Microphone com.human37.open-wispr 2>/dev/null || true
 
 echo ""
-echo "==> Starting open-wispr..."
-echo "   After 10 seconds the menu bar should show the re-add hint."
+echo "==> Launching OpenWispr..."
+echo "   You should be prompted for microphone and accessibility permissions."
+echo "   The menu bar should show a lock icon while waiting."
 echo ""
-~/Applications/OpenWispr.app/Contents/MacOS/open-wispr start
+open ~/Applications/OpenWispr.app --args start

@@ -16,6 +16,7 @@ class StatusBarController: NSObject {
     private var menuItemTargets: [MenuItemTarget] = []
 
     var reprocessHandler: ((URL) -> Void)?
+    var accessibilityHint: String?
 
     enum State {
         case idle
@@ -101,6 +102,12 @@ class StatusBarController: NSObject {
         let stateItem = NSMenuItem(title: stateText, action: nil, keyEquivalent: "")
         stateItem.isEnabled = false
         menu.addItem(stateItem)
+
+        if state == .waitingForPermission, let hint = accessibilityHint {
+            let hintItem = NSMenuItem(title: hint, action: nil, keyEquivalent: "")
+            hintItem.isEnabled = false
+            menu.addItem(hintItem)
+        }
 
         menu.addItem(NSMenuItem.separator())
 

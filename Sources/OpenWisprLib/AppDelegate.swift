@@ -60,8 +60,18 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             Permissions.promptAccessibility()
             Permissions.openAccessibilitySettings()
             print("Waiting for Accessibility permission...")
+            var elapsed = 0
             while !AXIsProcessTrusted() {
                 Thread.sleep(forTimeInterval: 2)
+                elapsed += 2
+                if elapsed == 10 {
+                    print("Accessibility: still not granted.")
+                    print("If OpenWispr is already in the list, remove it (minus button) and re-add it (plus button).")
+                    DispatchQueue.main.async {
+                        self.statusBar.accessibilityHint = "Remove OpenWispr (- button) and re-add it (+ button)"
+                        self.statusBar.buildMenu()
+                    }
+                }
             }
             print("Accessibility: granted")
         } else {

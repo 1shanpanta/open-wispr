@@ -49,12 +49,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
 
-        if Permissions.isAccessibilityStale() {
-            print("Accessibility: stale permission detected, resetting...")
-            Permissions.resetAccessibility()
-            Thread.sleep(forTimeInterval: 0.5)
-        }
-
         Permissions.ensureMicrophone()
 
         if !AXIsProcessTrusted() {

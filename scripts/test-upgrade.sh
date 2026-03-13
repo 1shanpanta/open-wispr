@@ -2,7 +2,6 @@
 set -euo pipefail
 
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 RED='\033[0;31m'
 DIM='\033[2m'
 BOLD='\033[1m'
@@ -64,7 +63,7 @@ ok "Stopped"
 build_and_install "baseline"
 
 step "Starting via brew services (baseline)"
-> "$SERVICE_LOG" 2>/dev/null || true
+true > "$SERVICE_LOG" 2>/dev/null || true
 brew services start open-wispr 2>/dev/null || true
 
 if wait_for_log "Ready\." 30; then
@@ -92,7 +91,7 @@ build_and_install "upgrade"
 mv "${VERSION_FILE}.bak" "$VERSION_FILE"
 
 step "Starting via brew services (upgrade)"
-> "$SERVICE_LOG" 2>/dev/null || true
+true > "$SERVICE_LOG" 2>/dev/null || true
 brew services start open-wispr 2>/dev/null || true
 
 if wait_for_log "Ready\." 30; then

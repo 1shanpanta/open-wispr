@@ -25,17 +25,4 @@ struct Permissions {
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true] as CFDictionary
         AXIsProcessTrustedWithOptions(options)
     }
-
-    static func resetAccessibility() {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
-        process.arguments = ["reset", "Accessibility", "com.human37.open-wispr"]
-        try? process.run()
-        process.waitUntilExit()
-    }
-
-    static func isAccessibilityStale() -> Bool {
-        guard AXIsProcessTrusted() else { return false }
-        return CGEvent(keyboardEventSource: nil, virtualKey: 0, keyDown: true) == nil
-    }
 }

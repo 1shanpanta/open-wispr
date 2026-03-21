@@ -471,9 +471,12 @@
 
     /* TESTIMONIAL */
     .testimonial{max-width:1200px;margin:0 auto;padding:var(--sp) 40px}
+    .testimonial-grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;
+    }
     .testimonial-card{
       border:var(--bw) solid var(--border);box-shadow:var(--shadow);
-      background:var(--surface);padding:32px;max-width:640px;
+      background:var(--surface);padding:32px;
     }
     .testimonial-quote{
       font-size:15px;line-height:1.8;margin-bottom:20px;
@@ -484,6 +487,11 @@
       text-transform:uppercase;letter-spacing:.08em;
     }
     .testimonial-role{font-size:12px;color:var(--muted);margin-top:2px}
+    .testimonial-source a{
+      font-size:11px;color:var(--muted);text-decoration:none;
+      border-bottom:1px solid var(--subtle-border);
+    }
+    .testimonial-source a:hover{color:var(--fg)}
 
     /* FAQ */
     .faq{max-width:1200px;margin:0 auto;padding:var(--sp) 40px}
@@ -876,10 +884,17 @@
 
 <section class="testimonial">
   <p class="section-tag">What people say</p>
-  <div class="testimonial-card">
-    <p class="testimonial-quote">"I use this with Claude Code every day. Hold the key, say what I want, and it just types it out. No more switching between keyboard and some dictation app. It's perfect for long prompts."</p>
-    <div class="testimonial-author">Tanner Thorne</div>
-    <div class="testimonial-role">Software Engineer</div>
+  <div class="testimonial-grid">
+    <div class="testimonial-card">
+      <p class="testimonial-quote">"I use this with Claude Code every day. Hold the key, say what I want, and it just types it out. No more switching between keyboard and some dictation app. It's perfect for long prompts."</p>
+      <div class="testimonial-author">Tanner Thorne</div>
+      <div class="testimonial-role">Software Engineer</div>
+    </div>
+    <div class="testimonial-card">
+      <p class="testimonial-quote">"Been using this -- no sub, no fees, and it's been working just as well."</p>
+      <div class="testimonial-author">@traceyami, on switching from Wispr Flow</div>
+      <div class="testimonial-source"><a href="https://www.threads.com/@traceyami/post/DVztu4xEa0-" target="_blank" rel="noopener">via Threads</a></div>
+    </div>
   </div>
 </section>
 

@@ -36,6 +36,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         }
         transcriber = Transcriber(modelSize: config.modelSize, language: config.language)
         transcriber.spokenPunctuation = config.spokenPunctuation?.value ?? false
+        transcriber.customDictionary = config.customDictionary ?? []
 
         DispatchQueue.main.async {
             self.statusBar.reprocessHandler = { [weak self] url in
@@ -152,6 +153,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         config = newConfig
         transcriber = Transcriber(modelSize: config.modelSize, language: config.language)
         transcriber.spokenPunctuation = config.spokenPunctuation?.value ?? false
+        transcriber.customDictionary = config.customDictionary ?? []
         inserter = TextInserter()
 
         hotkeyManager?.stop()
@@ -259,7 +261,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             }
             do {
                 let raw = try self.transcriber.transcribe(audioURL: audioURL)
-                let text = (self.config.spokenPunctuation?.value ?? false) ? TextPostProcessor.process(raw) : raw
+                var text = (self.config.spokenPunctuation?.value ?? false) ? TextPostProcessor.process(raw) : raw
+                text = DictionaryPostProcessor.process(text, dictionary: self.config.customDictionary ?? [])
                 if maxRecordings > 0 {
                     RecordingStore.prune(maxCount: maxRecordings)
                 }
@@ -299,7 +302,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             guard let self = self else { return }
             do {
                 let raw = try self.transcriber.transcribe(audioURL: audioURL)
-                let text = (self.config.spokenPunctuation?.value ?? false) ? TextPostProcessor.process(raw) : raw
+                var text = (self.config.spokenPunctuation?.value ?? false) ? TextPostProcessor.process(raw) : raw
+                text = DictionaryPostProcessor.process(text, dictionary: self.config.customDictionary ?? [])
                 DispatchQueue.main.async {
                     if !text.isEmpty {
                         self.lastTranscription = text

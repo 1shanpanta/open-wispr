@@ -261,8 +261,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             }
             do {
                 let raw = try self.transcriber.transcribe(audioURL: audioURL)
-                var text = (self.config.spokenPunctuation?.value ?? false) ? TextPostProcessor.process(raw) : raw
-                text = DictionaryPostProcessor.process(text, dictionary: self.config.customDictionary ?? [])
+                let text = self.postProcess(raw)
                 if maxRecordings > 0 {
                     RecordingStore.prune(maxCount: maxRecordings)
                 }
@@ -293,6 +292,12 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    private func postProcess(_ raw: String) -> String {
+        var text = (config.spokenPunctuation?.value ?? false) ? TextPostProcessor.process(raw) : raw
+        text = DictionaryPostProcessor.process(text, dictionary: config.customDictionary ?? [])
+        return text
+    }
+
     public func reprocess(audioURL: URL) {
         guard case .idle = statusBar.state else { return }
 
@@ -302,8 +307,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             guard let self = self else { return }
             do {
                 let raw = try self.transcriber.transcribe(audioURL: audioURL)
-                var text = (self.config.spokenPunctuation?.value ?? false) ? TextPostProcessor.process(raw) : raw
-                text = DictionaryPostProcessor.process(text, dictionary: self.config.customDictionary ?? [])
+                let text = self.postProcess(raw)
                 DispatchQueue.main.async {
                     if !text.isEmpty {
                         self.lastTranscription = text

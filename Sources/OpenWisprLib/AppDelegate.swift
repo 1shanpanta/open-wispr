@@ -9,6 +9,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     var config: Config!
     var isPressed = false
     var isReady = false
+    var floatingIndicator: FloatingIndicator?
     public var lastTranscription: String?
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
@@ -130,6 +131,18 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             }
         )
 
+        floatingIndicator = FloatingIndicator()
+        floatingIndicator?.orderFront(nil)
+        floatingIndicator?.setState(.idle)
+        floatingIndicator?.onTap = { [weak self] in
+            guard let self = self, self.isReady else { return }
+            if self.isPressed {
+                self.handleRecordingStop()
+            } else {
+                self.handleRecordingStart()
+            }
+        }
+
         isReady = true
         statusBar.state = .idle
         statusBar.buildMenu()
@@ -225,6 +238,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         guard !isPressed else { return }
         isPressed = true
         statusBar.state = .recording
+        floatingIndicator?.setState(.recording)
         do {
             let outputURL: URL
             if Config.effectiveMaxRecordings(config.maxRecordings) == 0 {
@@ -236,6 +250,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         } catch {
             print("Error: \(error.localizedDescription)")
             isPressed = false
+            floatingIndicator?.setState(.idle)
             statusBar.state = .idle
         }
     }
@@ -245,11 +260,13 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         isPressed = false
 
         guard let audioURL = recorder.stopRecording() else {
+            floatingIndicator?.setState(.idle)
             statusBar.state = .idle
             return
         }
 
         statusBar.state = .transcribing
+        floatingIndicator?.setState(.transcribing)
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self = self else { return }
@@ -265,11 +282,16 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
                 if maxRecordings > 0 {
                     RecordingStore.prune(maxCount: maxRecordings)
                 }
+                if !text.isEmpty {
+                    let wordCount = text.split(separator: " ").count
+                    StatsStore.logWords(wordCount)
+                }
                 DispatchQueue.main.async {
                     if !text.isEmpty {
                         self.lastTranscription = text
                         self.inserter.insert(text: text)
                     }
+                    self.floatingIndicator?.setState(.idle)
                     self.statusBar.state = .idle
                     self.statusBar.buildMenu()
                 }
@@ -279,6 +301,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
                 }
                 DispatchQueue.main.async {
                     print("Error: \(error.localizedDescription)")
+                    self.floatingIndicator?.setState(.idle)
                     self.statusBar.state = .error(error.localizedDescription)
                     self.statusBar.buildMenu()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 5) {

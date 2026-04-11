@@ -2,57 +2,202 @@
 
 > Free, open-source voice dictation for macOS. Powered by Whisper AI, runs 100% on-device.
 
-open-wispr is a lightweight macOS app that provides push-to-talk voice dictation. Hold a hotkey, speak, release — transcribed text appears at your cursor in any app. It uses OpenAI's Whisper model running locally via whisper.cpp, so no audio or text ever leaves the machine.
+open-wispr is a lightweight macOS menu bar app that provides push-to-talk voice dictation. Press Shift+Space, speak, press again to stop -- transcribed text appears at your cursor in any app. It uses OpenAI's Whisper model running locally via whisper.cpp, so no audio or text ever leaves the machine.
+
+This fork adds a floating on-screen indicator, word tracking stats, and hotkey reliability fixes.
 
 ## Key Facts
 
 - **Price**: Free and open source (MIT license)
-- **Platform**: macOS (Apple Silicon and Intel)
-- **Privacy**: 100% on-device. Zero network requests. Default maxRecordings=0: temp file + immediate delete, and startup clears any older retained recordings. Set maxRecordings 1–100 to enable Recent Recordings.
-- **Install**: `brew install human37/open-wispr/open-wispr` or guided installer via `curl -fsSL https://open-wispr.com/install.sh | bash`
-- **Source**: https://github.com/human37/open-wispr
-- **Website**: https://open-wispr.com/
-
-## How It Works
-
-1. Hold the Globe key (or a custom hotkey)
-2. Speak naturally
-3. Release — text is typed at your cursor via macOS Accessibility
+- **Platform**: macOS 13+ (Apple Silicon required)
+- **Privacy**: 100% on-device. Zero network requests after initial model download.
+- **Source**: https://github.com/1shanpanta/open-wispr (fork of human37/open-wispr)
 
 ## Features
 
 - Works in any app (text editors, browsers, Slack, Terminal, etc.)
+- Floating draggable indicator shows recording/transcribing state
+- Word tracking: today, this week, all time (menu bar + CLI)
 - Multiple Whisper model sizes (tiny, base, small, medium, large)
-- Configurable hotkey, language, and model via `~/.config/open-wispr/config.json`
-- Runs as a background Homebrew service
-- No GUI, no menubar icon, no overhead
-
-## Comparison to Alternatives
-
-| Feature | open-wispr | Wispr Flow | Superwhisper | MacWhisper |
-|---|---|---|---|---|
-| Price | Free | $15/mo | $8.49/mo | $69 |
-| Open Source | Yes | No | No | No |
-| 100% Local | Yes | Yes | Yes | Yes |
-| Works in Any App | Yes | Yes | Yes | No (copy/paste) |
-| Install Method | Homebrew | DMG | DMG | App Store |
-
-## Configuration
-
-```json
-{
-  "model": "base",
-  "language": "en",
-  "hotkey": "globe",
-  "max_duration": 30
-}
-```
-
-Config file location: `~/.config/open-wispr/config.json`
+- Configurable hotkey, language, and model
+- Toggle mode or hold-to-talk mode
 
 ## System Requirements
 
 - macOS 13 (Ventura) or later
-- Apple Silicon (M1+) or Intel Mac
+- Apple Silicon (M1+)
+- Homebrew installed
 - ~150 MB disk space for the default Whisper model
 - Microphone and Accessibility permissions
+
+---
+
+## LLM Setup Instructions
+
+Copy everything below this line into your LLM (Claude, ChatGPT, etc.) to set up open-wispr as a macOS application. Run each command and confirm it succeeds before moving to the next step.
+
+### Step 1: Clone and build
+
+```bash
+git clone https://github.com/1shanpanta/open-wispr.git ~/Desktop/Code/Passion-Projects/open-wispr
+cd ~/Desktop/Code/Passion-Projects/open-wispr
+brew install whisper-cpp
+swift build -c release
+```
+
+Verify the binary exists:
+
+```bash
+ls -la .build/release/open-wispr
+```
+
+### Step 2: Create the macOS .app bundle
+
+Create the directory structure:
+
+```bash
+mkdir -p "/Applications/Open Wispr.app/Contents/MacOS"
+mkdir -p "/Applications/Open Wispr.app/Contents/Resources"
+```
+
+### Step 3: Create the launcher script
+
+The binary requires the `start` argument. The .app needs a wrapper script that passes it. Write this file to `/Applications/Open Wispr.app/Contents/MacOS/open-wispr-launcher`:
+
+```bash
+#!/bin/bash
+exec "$HOME/Desktop/Code/Passion-Projects/open-wispr/.build/release/open-wispr" start
+```
+
+Then make it executable:
+
+```bash
+chmod +x "/Applications/Open Wispr.app/Contents/MacOS/open-wispr-launcher"
+```
+
+Important: if the repo is cloned to a different path, update the path in the launcher script.
+
+### Step 4: Create Info.plist
+
+Write this file to `/Applications/Open Wispr.app/Contents/Info.plist`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleExecutable</key>
+    <string>open-wispr-launcher</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.human37.open-wispr.launcher</string>
+    <key>CFBundleName</key>
+    <string>Open Wispr</string>
+    <key>CFBundleDisplayName</key>
+    <string>Open Wispr</string>
+    <key>CFBundleVersion</key>
+    <string>0.34.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>0.34.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>13.0</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
+    <key>LSUIElement</key>
+    <true/>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Open Wispr needs microphone access to record speech for transcription.</string>
+</dict>
+</plist>
+```
+
+LSUIElement is true so the app runs as a menu bar app with no dock icon.
+
+### Step 5: Copy the app icon
+
+```bash
+cp ~/Desktop/Code/Passion-Projects/open-wispr/Resources/AppIcon.icns "/Applications/Open Wispr.app/Contents/Resources/"
+```
+
+### Step 6: Register with macOS
+
+This makes the app discoverable by Spotlight and Raycast:
+
+```bash
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "/Applications/Open Wispr.app"
+```
+
+### Step 7: Launch
+
+```bash
+open "/Applications/Open Wispr.app"
+```
+
+### Step 8: Add to PATH
+
+Symlink the binary so `open-wispr` works from any terminal:
+
+```bash
+ln -sf ~/Desktop/Code/Passion-Projects/open-wispr/.build/release/open-wispr /opt/homebrew/bin/open-wispr
+```
+
+If using fish shell, rehash so it picks up the new command:
+
+```bash
+fish -c "fish_rehash" 2>/dev/null; hash -r 2>/dev/null
+```
+
+Verify it works (note the hyphen -- it's `open-wispr` not `openwispr`):
+
+```bash
+open-wispr stats
+```
+
+### Step 9: Grant permissions
+
+macOS will prompt for:
+1. **Microphone access** -- allow it
+2. **Accessibility access** -- go to System Settings > Privacy & Security > Accessibility and enable open-wispr
+
+### Verification
+
+After setup, confirm these work:
+
+1. Search "Open Wispr" in Raycast or Spotlight -- it should appear and launch
+2. A floating circle indicator appears on screen (drag it anywhere)
+3. Click the menu bar waveform icon -- you should see word stats (Today / This Week / All Time)
+4. Press Shift+Space to start recording, press again to stop
+5. Run `~/Desktop/Code/Passion-Projects/open-wispr/.build/release/open-wispr stats` to see word counts in terminal
+
+### Updating
+
+After pulling new changes:
+
+```bash
+cd ~/Desktop/Code/Passion-Projects/open-wispr
+git pull
+swift build -c release
+pkill -f "open-wispr start"
+open "/Applications/Open Wispr.app"
+```
+
+The launcher script always points to the latest binary. No need to recreate the .app bundle.
+
+### Configuration
+
+Edit `~/.config/open-wispr/config.json`:
+
+```json
+{
+  "hotkey": { "keyCode": 49, "modifiers": ["shift"] },
+  "modelSize": "base.en",
+  "language": "en",
+  "spokenPunctuation": false,
+  "maxRecordings": 0,
+  "toggleMode": true
+}
+```
+
+Common hotkey codes: Space (49), Globe (63), Right Option (61), F5 (96).
+Modifiers: "cmd", "ctrl", "shift", "opt".

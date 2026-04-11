@@ -128,6 +128,30 @@ class StatusBarController: NSObject {
 
         menu.addItem(NSMenuItem.separator())
 
+        let todayWords = StatsStore.todayWords()
+        let weekWords = StatsStore.thisWeekWords()
+        let allTimeWords = StatsStore.allTimeWords()
+
+        let formatNumber: (Int) -> String = { n in
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            return formatter.string(from: NSNumber(value: n)) ?? "\(n)"
+        }
+
+        let todayItem = NSMenuItem(title: "Today: \(formatNumber(todayWords)) words", action: nil, keyEquivalent: "")
+        todayItem.isEnabled = false
+        menu.addItem(todayItem)
+
+        let weekItem = NSMenuItem(title: "This Week: \(formatNumber(weekWords)) words", action: nil, keyEquivalent: "")
+        weekItem.isEnabled = false
+        menu.addItem(weekItem)
+
+        let allTimeItem = NSMenuItem(title: "All Time: \(formatNumber(allTimeWords)) words", action: nil, keyEquivalent: "")
+        allTimeItem.isEnabled = false
+        menu.addItem(allTimeItem)
+
+        menu.addItem(NSMenuItem.separator())
+
         let currentLang = config.language
         let langName = Config.supportedLanguages.first(where: { $0.code == currentLang })?.name ?? currentLang
         let langItem = NSMenuItem(title: "Language: \(langName)", action: nil, keyEquivalent: "")

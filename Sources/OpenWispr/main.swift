@@ -18,6 +18,7 @@ func printUsage() {
         open-wispr set-model <size>   Set the Whisper model
         open-wispr set-language <code>  Set the language (e.g. en, fr, auto)
         open-wispr download-model [size]  Download a Whisper model
+        open-wispr stats              Show dictation word counts
         open-wispr status             Show configuration and status
         open-wispr --help             Show this help message
 
@@ -142,6 +143,23 @@ func cmdStatus() {
     print("Toggle:      \(toggleMode ? "on (press to start/stop)" : "off (hold to talk)")")
 }
 
+func cmdStats() {
+    let today = StatsStore.todayWords()
+    let week = StatsStore.thisWeekWords()
+    let allTime = StatsStore.allTimeWords()
+
+    let formatter = NumberFormatter()
+    formatter.numberStyle = .decimal
+
+    let fmt: (Int) -> String = { n in
+        formatter.string(from: NSNumber(value: n)) ?? "\(n)"
+    }
+
+    print("Today:     \(fmt(today)) words")
+    print("This week: \(fmt(week)) words")
+    print("All time:  \(fmt(allTime)) words")
+}
+
 let args = CommandLine.arguments
 let command = args.count > 1 ? args[1] : nil
 
@@ -172,6 +190,8 @@ case "get-hotkey":
 case "download-model":
     let size = args.count > 2 ? args[2] : "base.en"
     cmdDownloadModel(size)
+case "stats":
+    cmdStats()
 case "status":
     cmdStatus()
 case "--help", "-h", "help":

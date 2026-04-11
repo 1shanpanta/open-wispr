@@ -50,9 +50,10 @@ class HotkeyManager {
             }
         } else {
             guard event.keyCode == keyCode else { return }
+            if event.type == .keyDown && event.isARepeat { return }
             if requiredModifiers != 0 {
                 let currentMods = UInt64(event.modifierFlags.rawValue) & 0x00FF0000
-                guard currentMods & requiredModifiers == requiredModifiers else { return }
+                guard currentMods == requiredModifiers else { return }
             }
             if event.type == .keyDown {
                 onKeyDown?()

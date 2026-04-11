@@ -8,6 +8,7 @@ class HotkeyManager {
     private var onKeyDown: (() -> Void)?
     private var onKeyUp: (() -> Void)?
     private var modifierPressed = false
+    private var modifierConsumed = false
 
     init(keyCode: UInt16, modifiers: UInt64 = 0) {
         self.keyCode = keyCode
@@ -49,11 +50,30 @@ class HotkeyManager {
                 onKeyDown?()
             }
         } else {
+            // Reset consumed flag when required modifiers are fully released
+            if requiredModifiers != 0 && event.type == .flagsChanged {
+                let currentMods = UInt64(event.modifierFlags.rawValue) & 0x00FF0000
+                if currentMods & requiredModifiers != requiredModifiers {
+                    modifierConsumed = false
+                }
+                return
+            }
+
+            // Mark modifier as consumed if another key is pressed while modifier is held
+            if requiredModifiers != 0 && event.type == .keyDown && event.keyCode != keyCode {
+                let currentMods = UInt64(event.modifierFlags.rawValue) & 0x00FF0000
+                if currentMods & requiredModifiers == requiredModifiers {
+                    modifierConsumed = true
+                }
+                return
+            }
+
             guard event.keyCode == keyCode else { return }
             if event.type == .keyDown && event.isARepeat { return }
             if requiredModifiers != 0 {
                 let currentMods = UInt64(event.modifierFlags.rawValue) & 0x00FF0000
                 guard currentMods == requiredModifiers else { return }
+                guard !modifierConsumed else { return }
             }
             if event.type == .keyDown {
                 onKeyDown?()

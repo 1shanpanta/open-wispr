@@ -124,19 +124,26 @@ fi
 ok "Homebrew"
 
 # ── Step 1: Clean up ─────────────────────────────────────────────────
-if brew list open-wispr &>/dev/null || [ -d ~/Applications/OpenWispr.app ]; then
+# Deliberately preserves ~/Applications/OpenWispr.app and all TCC grants.
+# Keeping the bundle at a stable path is what lets macOS remember the
+# Accessibility / Input Monitoring permissions the user already granted.
+if brew list open-wispr &>/dev/null; then
     step "Removing previous installation"
     start_spin "Cleaning up..."
 
     brew services stop open-wispr </dev/null >/dev/null 2>&1 || true
     brew uninstall --force open-wispr </dev/null >/dev/null 2>&1 || true
     brew untap human37/open-wispr </dev/null >/dev/null 2>&1 || true
-    tccutil reset Accessibility com.human37.open-wispr </dev/null >/dev/null 2>&1 || true
-    tccutil reset Microphone com.human37.open-wispr </dev/null >/dev/null 2>&1 || true
-    rm -rf ~/Applications/OpenWispr.app
 
     stop_spin
     ok "Clean"
+fi
+
+# Legacy installs symlinked ~/Applications/OpenWispr.app into the versioned
+# Cellar path. That path changed every upgrade and invalidated TCC grants.
+# Drop the symlink so the formula can lay down a real bundle below.
+if [ -L ~/Applications/OpenWispr.app ]; then
+    rm ~/Applications/OpenWispr.app
 fi
 
 # ── Step 2: Install ──────────────────────────────────────────────────
@@ -178,8 +185,14 @@ fi
 ok "Installed"
 
 mkdir -p ~/Applications
-rm -rf ~/Applications/OpenWispr.app
-ln -sf "${BREW_PREFIX}/OpenWispr.app" ~/Applications/OpenWispr.app
+# Real bundle at a stable path (not a Cellar symlink) so TCC grants survive
+# upgrades. The formula's post_install populates/updates it; this is a safety
+# net in case someone ran `brew install` without re-tapping the updated formula.
+if [ ! -e ~/Applications/OpenWispr.app ]; then
+    cp -R "${BREW_PREFIX}/OpenWispr.app" ~/Applications/OpenWispr.app
+elif [ ! -L ~/Applications/OpenWispr.app ]; then
+    rsync -a --delete "${BREW_PREFIX}/OpenWispr.app/" ~/Applications/OpenWispr.app/
+fi
 
 # ── Step 3: Permissions ──────────────────────────────────────────────
 step "Setting up permissions"

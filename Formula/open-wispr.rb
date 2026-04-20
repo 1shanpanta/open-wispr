@@ -14,15 +14,25 @@ class OpenWispr < Formula
     prefix.install "OpenWispr.app"
   end
 
+  # Install a real bundle at ~/Applications/OpenWispr.app (not a symlink into
+  # the versioned Cellar path) so macOS TCC grants — Accessibility, Input
+  # Monitoring, Microphone — keep referring to the same path across upgrades.
+  # Upgrades rsync into the existing bundle so the directory inode is reused.
   def post_install
     target = Pathname.new("#{Dir.home}/Applications/OpenWispr.app")
     target.dirname.mkpath
-    rm_rf target if target.exist? && !target.symlink?
-    ln_sf prefix/"OpenWispr.app", target
+
+    target.unlink if target.symlink?
+
+    if target.exist?
+      system "rsync", "-a", "--delete", "#{prefix}/OpenWispr.app/", "#{target}/"
+    else
+      cp_r prefix/"OpenWispr.app", target
+    end
   end
 
   service do
-    run [opt_prefix/"OpenWispr.app/Contents/MacOS/open-wispr", "start"]
+    run ["#{Dir.home}/Applications/OpenWispr.app/Contents/MacOS/open-wispr", "start"]
     keep_alive successful_exit: false
     log_path var/"log/open-wispr.log"
     error_log_path var/"log/open-wispr.log"

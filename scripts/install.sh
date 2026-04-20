@@ -149,8 +149,13 @@ fi
 # ── Step 2: Install ──────────────────────────────────────────────────
 step "Installing"
 
+# Drop any previous tap so we can re-tap against this repo's URL. The project
+# used to live in a dedicated homebrew-tap repo; now the formula is vendored
+# here under Formula/open-wispr.rb and brew points straight at this repo.
+brew untap human37/open-wispr </dev/null >/dev/null 2>&1 || true
+
 start_spin "Tapping human37/open-wispr..."
-TAP_OUT=$(brew tap human37/open-wispr --force </dev/null 2>&1) || {
+TAP_OUT=$(brew tap human37/open-wispr https://github.com/human37/open-wispr --force </dev/null 2>&1) || {
     stop_spin
     fail "Failed to tap human37/open-wispr"
     info "$TAP_OUT"
@@ -161,18 +166,17 @@ ok "Tapped ${DIM}human37/open-wispr${NC}"
 
 TAP_DIR="$(brew --repository human37/open-wispr 2>/dev/null)"
 if [ -n "$VERSION" ]; then
-    FORMULA_COMMIT=$(git -C "$TAP_DIR" log --all --grep="v${VERSION}" --format=%H -1)
-    if [ -z "$FORMULA_COMMIT" ]; then
-        die "Version ${VERSION} not found in tap history"
+    if ! git -C "$TAP_DIR" rev-parse "v${VERSION}" >/dev/null 2>&1; then
+        die "Version ${VERSION} not found (no tag v${VERSION} in ${TAP_DIR})"
     fi
-    git -C "$TAP_DIR" checkout "$FORMULA_COMMIT" -- open-wispr.rb 2>/dev/null
+    git -C "$TAP_DIR" checkout "v${VERSION}" -- Formula/open-wispr.rb 2>/dev/null
 fi
 
 start_spin "Installing open-wispr${VERSION:+ v$VERSION}..."
 brew install open-wispr </dev/null >/dev/null 2>&1 || true
 brew reinstall open-wispr </dev/null >/dev/null 2>&1 || true
 if [ -n "$VERSION" ]; then
-    git -C "$TAP_DIR" checkout main -- open-wispr.rb 2>/dev/null || true
+    git -C "$TAP_DIR" checkout main -- Formula/open-wispr.rb 2>/dev/null || true
 fi
 stop_spin
 

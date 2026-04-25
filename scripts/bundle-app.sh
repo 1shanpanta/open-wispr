@@ -23,7 +23,7 @@ cat > "$APP_DIR/Contents/Info.plist" << PLIST
     <key>CFBundleExecutable</key>
     <string>open-wispr</string>
     <key>CFBundleIdentifier</key>
-    <string>com.human37.open-wispr</string>
+    <string>com.ishan.open-wispr</string>
     <key>CFBundleName</key>
     <string>OpenWispr</string>
     <key>CFBundleDisplayName</key>
@@ -46,6 +46,19 @@ cat > "$APP_DIR/Contents/Info.plist" << PLIST
 </plist>
 PLIST
 
-codesign --force --sign - --identifier com.human37.open-wispr "$APP_DIR"
+# Create entitlements for accessibility
+cat > "$APP_DIR/Contents/entitlements.plist" << ENTITLEMENTS
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>com.apple.security.automation.apple-events</key>
+    <true/>
+</dict>
+</plist>
+ENTITLEMENTS
+
+codesign --force --sign - --entitlements "$APP_DIR/Contents/entitlements.plist" --identifier com.ishan.open-wispr --deep "$APP_DIR"
+rm "$APP_DIR/Contents/entitlements.plist"
 
 echo "Built $APP_DIR"

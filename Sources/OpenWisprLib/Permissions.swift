@@ -3,7 +3,7 @@ import AVFoundation
 import ApplicationServices
 import Foundation
 
-struct Permissions {
+public struct Permissions {
     static func ensureMicrophone() {
         switch AVCaptureDevice.authorizationStatus(for: .audio) {
         case .authorized:
@@ -26,12 +26,23 @@ struct Permissions {
         AXIsProcessTrustedWithOptions(options)
     }
 
-    static func resetAccessibility() {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
-        process.arguments = ["reset", "Accessibility", "com.human37.open-wispr"]
-        try? process.run()
-        process.waitUntilExit()
+    /// Check if Input Monitoring permission is granted.
+    /// Uses CGPreflightListenEventAccess (public CoreGraphics API, macOS 10.15+).
+    public static func isInputMonitoringGranted() -> Bool {
+        return CGPreflightListenEventAccess()
+    }
+
+    /// Request Input Monitoring permission by triggering the system prompt.
+    /// Returns true if already granted, false if the user needs to grant it.
+    @discardableResult
+    static func requestInputMonitoring() -> Bool {
+        return CGRequestListenEventAccess()
+    }
+
+    static func openInputMonitoringSettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent") {
+            NSWorkspace.shared.open(url)
+        }
     }
 
     static func didUpgrade() -> Bool {

@@ -239,6 +239,19 @@ else
     ok "Accessibility"
 fi
 
+if wait_for_log "Input Monitoring: granted" 5; then
+    ok "Input Monitoring"
+else
+    printf "\r\033[K"
+    info "macOS needs Input Monitoring permission to receive hotkey events."
+    info "System Settings will open — find ${BOLD}open-wispr${NC} and toggle it ${BOLD}ON${NC}.\n"
+
+    if ! wait_for_log "Input Monitoring: granted" 300 "Waiting for you to grant Input Monitoring permission..."; then
+        die "Timed out waiting for Input Monitoring permission."
+    fi
+    ok "Input Monitoring"
+fi
+
 # ── Step 4: Model download ───────────────────────────────────────────
 if grep -q "Downloading" "$LOG" 2>/dev/null; then
     step "Downloading Whisper model"

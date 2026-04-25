@@ -26,6 +26,7 @@ class StatusBarController: NSObject {
         case transcribing
         case downloading
         case waitingForPermission
+        case waitingForInputMonitoring
         case copiedToClipboard
         case error(String)
     }
@@ -106,6 +107,7 @@ class StatusBarController: NSObject {
             case .transcribing: stateLabel = "Transcribing..."
             case .downloading: stateLabel = "Downloading model..."
             case .waitingForPermission: stateLabel = "Waiting for Accessibility permission..."
+            case .waitingForInputMonitoring: stateLabel = "Waiting for Input Monitoring permission..."
             case .copiedToClipboard: stateLabel = "Copied to clipboard"
             case .error(let message): stateLabel = "Error: \(message)"
             }
@@ -119,6 +121,19 @@ class StatusBarController: NSObject {
             stateItem.target = target
             menu.addItem(stateItem)
             stateMenuItem = stateItem
+        } else if case .waitingForInputMonitoring = state {
+            let target = MenuItemTarget {
+                Permissions.openInputMonitoringSettings()
+            }
+            menuItemTargets.append(target)
+            let stateItem = NSMenuItem(title: "Grant Input Monitoring Permission...", action: #selector(MenuItemTarget.invoke), keyEquivalent: "")
+            stateItem.target = target
+            menu.addItem(stateItem)
+            stateMenuItem = stateItem
+
+            let hintItem = NSMenuItem(title: "Restart open-wispr after granting", action: nil, keyEquivalent: "")
+            hintItem.isEnabled = false
+            menu.addItem(hintItem)
         } else {
             let stateItem = NSMenuItem(title: "\(stateLabel) (hotkey: \(hotkeyDesc))", action: nil, keyEquivalent: "")
             stateItem.isEnabled = false
@@ -383,7 +398,7 @@ class StatusBarController: NSObject {
             startTranscribingAnimation()
         case .downloading:
             startDownloadingAnimation()
-        case .waitingForPermission:
+        case .waitingForPermission, .waitingForInputMonitoring:
             setIcon(StatusBarController.drawLockIcon())
         case .copiedToClipboard:
             setIcon(StatusBarController.drawCheckmarkIcon())

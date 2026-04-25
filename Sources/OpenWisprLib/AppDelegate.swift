@@ -55,9 +55,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         if Permissions.didUpgrade() {
-            print("Accessibility: upgrade detected, resetting permissions...")
-            Permissions.resetAccessibility()
-            Thread.sleep(forTimeInterval: 1)
+            print("Accessibility: upgrade detected (permissions preserved)")
         }
 
         if !AXIsProcessTrusted() {
@@ -79,6 +77,20 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             print("Accessibility: granted")
         } else {
             print("Accessibility: granted")
+        }
+
+        if !Permissions.isInputMonitoringGranted() {
+            print("Input Monitoring: not granted")
+            print("Requesting Input Monitoring permission (restart required after granting)...")
+            Permissions.requestInputMonitoring()
+            // Don't block — Input Monitoring requires a process restart to take effect.
+            // Show a warning and proceed; the user will need to restart after granting.
+            DispatchQueue.main.async {
+                self.statusBar.state = .waitingForInputMonitoring
+                self.statusBar.buildMenu()
+            }
+        } else {
+            print("Input Monitoring: granted")
         }
 
         if !Transcriber.modelExists(modelSize: config.modelSize) {

@@ -1,4 +1,5 @@
 import AppKit
+import ApplicationServices
 import Foundation
 import OpenWisprLib
 
@@ -141,6 +142,8 @@ func cmdStatus() {
     print("Language:    \(langName) (\(config.language))")
     let toggleMode = config.toggleMode?.value ?? false
     print("Toggle:      \(toggleMode ? "on (press to start/stop)" : "off (hold to talk)")")
+    print("Accessibility:    \(AXIsProcessTrusted() ? "granted" : "not granted")")
+    print("Input Monitoring: \(Permissions.isInputMonitoringGranted() ? "granted" : "not granted")")
 }
 
 func cmdStats() {

@@ -87,7 +87,7 @@ else
     fail "App bundle missing Info.plist"
 fi
 
-if grep -q "com.human37.open-wispr" /tmp/OpenWisprTest.app/Contents/Info.plist; then
+if grep -q "com.ishan.open-wispr" /tmp/OpenWisprTest.app/Contents/Info.plist; then
     pass "Info.plist has correct bundle ID"
 else
     fail "Info.plist wrong bundle ID"

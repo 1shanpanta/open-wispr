@@ -1,0 +1,8 @@
+NAME="OpenWispr"
+BUNDLE_ID="com.ishan.open-wispr"
+BUILD_CMD="swift build -c release"
+BINARY=".build/release/open-wispr"
+ICON="Resources/AppIcon.icns"
+VERSION="0.34.0"
+LS_UI_ELEMENT=true
+MIC_USAGE="OpenWispr needs microphone access to record speech for transcription."

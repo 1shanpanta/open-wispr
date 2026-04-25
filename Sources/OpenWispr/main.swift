@@ -197,7 +197,7 @@ case "status":
 case "--help", "-h", "help":
     printUsage()
 case nil:
-    printUsage()
+    cmdStart()
 default:
     print("Unknown command: \(command!)")
     printUsage()

@@ -21,10 +21,25 @@
 
 ## Install
 
+Either way, you need whisper-cpp (the transcription engine `open-wispr` shells out to):
+
+```bash
+brew install whisper-cpp
+```
+
+**Option 1 — download.** Grab the latest `open-wispr.zip` from [Releases](https://github.com/1shanpanta/open-wispr/releases) (universal arm64 + x86_64), unzip, and run:
+
+```bash
+./open-wispr/open-wispr start
+```
+
+The binary is unsigned, so if macOS Gatekeeper blocks it, clear the quarantine flag once: `xattr -dr com.apple.quarantine open-wispr`.
+
+**Option 2 — build from source.**
+
 ```bash
 git clone https://github.com/1shanpanta/open-wispr.git
 cd open-wispr
-brew install whisper-cpp
 swift build -c release
 .build/release/open-wispr start
 ```

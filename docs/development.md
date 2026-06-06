@@ -33,7 +33,7 @@ What that does, in order:
 
 Why this matters: the bundle ID + signing identity stay constant across rebuilds, so macOS TCC keeps Accessibility, Input Monitoring, and Microphone grants permanently. Without stable signing, you re-grant in System Settings every build.
 
-The legacy `scripts/dev-rebuild.sh` does the same thing as a fallback if `macship` isn't installed.
+The legacy `scripts/dev-rebuild.sh` does the same thing as a fallback if `macship` isn't installed. It reads its signing identity from `OPENWISPR_SIGNING_IDENTITY` (not `MACSHIP_CERT`), defaulting to your local "Apple Development" identity.
 
 ## Bundle identity
 

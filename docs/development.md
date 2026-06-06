@@ -23,7 +23,7 @@ What that does, in order:
 
 1. Reads `.macship` (a sourced shell file: `NAME`, `BUNDLE_ID`, `BUILD_CMD`, `BINARY`, plus optional `ICON`, `LS_UI_ELEMENT`, `MIC_USAGE`, etc.)
 2. Runs `swift build -c release`
-3. Signs `.build/release/open-wispr` with the Apple Developer cert in `MACSHIP_CERT` (defaults to "Apple Development: REDACTED (REDACTED)")
+3. Signs `.build/release/open-wispr` with the Apple Developer cert in `MACSHIP_CERT` (defaults to your local "Apple Development" identity)
 4. Stages a fresh `.app` bundle in `/tmp` (Info.plist, icon, executable)
 5. Re-signs the bundle with the same dev cert (ad-hoc signing would invalidate TCC grants on install)
 6. Stops any running daemon (`pkill -f open-wispr`)
@@ -42,8 +42,8 @@ The legacy `scripts/dev-rebuild.sh` does the same thing as a fallback if `macshi
 | Bundle ID             | `com.ishan.open-wispr`                                 |
 | Display name          | `OpenWispr`                                            |
 | Installed at          | `~/Applications/OpenWispr.app`                         |
-| Code-signing identity | Apple Development: REDACTED (REDACTED)            |
-| Team ID               | REDACTED                                             |
+| Code-signing identity | Apple Development (your local identity)                |
+| Team ID               | `<your Apple Team ID>`                                 |
 | Default hotkey        | Shift+Space, toggle mode                               |
 
 Changing the bundle ID resets all TCC grants once (re-grant Accessibility + Input Monitoring + Microphone in System Settings → Privacy & Security). After that they persist.

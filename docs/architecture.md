@@ -77,8 +77,8 @@ Side channels:
 | Field                 | Value                                                  |
 |-----------------------|--------------------------------------------------------|
 | Bundle ID             | `com.ishan.open-wispr`                                 |
-| Code-signing identity | Apple Development: REDACTED (REDACTED)            |
-| Team ID               | REDACTED                                             |
+| Code-signing identity | Apple Development (your local identity)                |
+| Team ID               | `<your Apple Team ID>`                                 |
 | Install path          | `~/Applications/OpenWispr.app`                         |
 | `LSUIElement`         | `true` (menu-bar agent, no Dock icon)                  |
 | Min macOS             | 13.0                                                   |

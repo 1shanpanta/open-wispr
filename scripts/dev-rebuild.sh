@@ -11,7 +11,7 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_DIR"
 
-CERT="${OPENWISPR_SIGNING_IDENTITY:-Apple Development: REDACTED (REDACTED)}"
+CERT="${OPENWISPR_SIGNING_IDENTITY:-Apple Development}"
 BIN=".build/release/open-wispr"
 STAGED_APP="OpenWispr.app"
 APP_DEST="$HOME/Applications/OpenWispr.app"

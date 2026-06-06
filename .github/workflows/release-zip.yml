@@ -1,0 +1,50 @@
+name: Release Zip
+
+# Build a universal `open-wispr` binary and attach it as a .zip.
+# Push a tag like v1.0.0 to publish a Release on this repo; run manually
+# (workflow_dispatch) to just build and grab the zip as an artifact.
+#
+# open-wispr links only system frameworks and shells out to whisper-cpp at
+# runtime, so the build needs no external deps and the binary is self-contained.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  zip:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build universal release binary
+        run: swift build -c release --arch arm64 --arch x86_64
+
+      - name: Stage and zip
+        run: |
+          mkdir -p dist/open-wispr
+          cp .build/apple/Products/Release/open-wispr dist/open-wispr/
+          cp README.md LICENSE dist/open-wispr/
+          lipo -archs dist/open-wispr/open-wispr
+          ditto -c -k --keepParent dist/open-wispr dist/open-wispr.zip
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: open-wispr-zip
+          path: dist/open-wispr.zip
+
+      - name: Publish to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NOTES='Universal (arm64 + x86_64) build of the `open-wispr` CLI.
+
+          Requires whisper-cpp at runtime: `brew install whisper-cpp`. Unzip, then run `./open-wispr/open-wispr start`. If macOS Gatekeeper blocks the unsigned binary, clear the quarantine flag once: `xattr -dr com.apple.quarantine open-wispr`.'
+          gh release create "$GITHUB_REF_NAME" dist/open-wispr.zip --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --notes "$NOTES" \
+            || gh release upload "$GITHUB_REF_NAME" dist/open-wispr.zip --repo "$GITHUB_REPOSITORY" --clobber

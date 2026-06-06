@@ -15,7 +15,7 @@ CERT="${OPENWISPR_SIGNING_IDENTITY:-Apple Development: REDACTED (REDACTED)}"
 BIN=".build/release/open-wispr"
 STAGED_APP="OpenWispr.app"
 APP_DEST="$HOME/Applications/OpenWispr.app"
-VERSION="0.34.0"
+VERSION="0.35.0"
 
 if ! security find-identity -v -p codesigning | grep -q "$CERT"; then
     echo "error: signing identity not in keychain: $CERT" >&2

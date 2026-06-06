@@ -1,8 +1,13 @@
 name: Build Bottles
 
+# Disabled on this fork. The job builds a Homebrew bottle and uploads it to
+# the upstream human37/open-wispr repo (hardcoded below), which this fork's
+# token cannot write to, so it can only ever fail here. The auto-trigger on
+# `release: [created]` is removed so cutting a release does not produce a red
+# X; the workflow is manual-only (workflow_dispatch) and retained for upstream
+# parity. Re-enable by restoring the `release` trigger and retargeting the tap.
 on:
-  release:
-    types: [created]
+  workflow_dispatch:
 
 jobs:
   bottle:

@@ -58,7 +58,10 @@ cat > "$APP_DIR/Contents/entitlements.plist" << ENTITLEMENTS
 </plist>
 ENTITLEMENTS
 
-codesign --force --sign - --entitlements "$APP_DIR/Contents/entitlements.plist" --identifier com.ishan.open-wispr --deep "$APP_DIR"
+# Ad-hoc is the right default here: dev-rebuild.sh re-signs the bundle with a
+# stable identity straight after, and a fresh clone must build with no cert.
+# Set SIGN_IDENTITY to sign this step properly when calling the script alone.
+codesign --force --sign "${SIGN_IDENTITY:--}" --entitlements "$APP_DIR/Contents/entitlements.plist" --identifier com.ishan.open-wispr --deep "$APP_DIR"
 rm "$APP_DIR/Contents/entitlements.plist"
 
 echo "Built $APP_DIR"
